@@ -89,4 +89,6 @@ public class BaseManageController {
         // 将获取到的数据返回即可！
         return Result.ok(spuInfoPageList);
     }
+
+
 }

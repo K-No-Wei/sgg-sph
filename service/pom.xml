@@ -13,6 +13,12 @@
     <artifactId>service</artifactId>
 
     <dependencies>
+        <!-- minio -->
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.2.0</version>
+        </dependency>
         <!--依赖服务的工具类-->
         <dependency>
             <groupId>com.atguigu.gmall</groupId>
