@@ -10,6 +10,8 @@
         <module>service</module>
         <module>service/service-product</module>
         <module>server-gateway</module>
+        <module>service-client</module>
+        <module>web</module>
     </modules>
     <!--引入spring boot 父工程-->
     <parent>
