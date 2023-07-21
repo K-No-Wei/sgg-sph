@@ -1,5 +1,6 @@
 package com.atguigu.gmall.product.service.impl;
 
+import com.atguigu.gmall.common.cache.GmallCache;
 import com.atguigu.gmall.common.config.RedisConfig;
 import com.atguigu.gmall.common.constant.RedisConst;
 import com.atguigu.gmall.model.product.*;
@@ -8,6 +9,8 @@ import com.atguigu.gmall.product.service.ManageService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.redisson.api.RBloomFilter;
+import org.redisson.api.RedissonClient;
 import org.redisson.client.RedisClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -254,6 +257,9 @@ public class ManageServiceImpl implements ManageService {
 
     private SkuSaleAttrValueMapper skuSaleAttrValueMapper;
 
+    @Autowired
+    private RedissonClient redissonClient;
+
     /**
      * 保存数据
      *
@@ -289,6 +295,11 @@ public class ManageServiceImpl implements ManageService {
                 skuAttrValueMapper.insert(skuAttrValue);
             }
         }
+
+        //添加布隆过滤器
+        RBloomFilter<Object> bloomFilter = redissonClient.getBloomFilter(RedisConst.SKU_BLOOM_FILTER);
+        bloomFilter.add(skuInfo.getId());
+
     }
 
     /**
@@ -331,12 +342,15 @@ public class ManageServiceImpl implements ManageService {
      * @return
      */
     @Override
+    @GmallCache(prefix = "sku:")
     public SkuInfo getSkuInfo(Long skuId) {
 
 
 //        return getSkuInfoRedis(skuId);
 
-        return getSkuInfoRedison(skuId);
+//        return getSkuInfoRedison(skuId);
+
+        return getSkuInfoDB(skuId);
     }
 
     /**
@@ -430,6 +444,7 @@ public class ManageServiceImpl implements ManageService {
      * @return
      */
     @Override
+    @GmallCache(prefix = "categoryView:")
     public BaseCategoryView getCategoryViewByCategory3Id(Long category3Id) {
         return baseCategoryViewMapper.selectById(category3Id);
     }
@@ -458,6 +473,7 @@ public class ManageServiceImpl implements ManageService {
      * @return
      */
     @Override
+    @GmallCache(prefix = "spuSaleAttrListCheckBySku:")
     public List<SpuSaleAttr> getSpuSaleAttrListCheckBySku(Long skuId, Long spuId) {
         return spuSaleAttrMapper.selectSpuSaleAttrListCheckBySku(skuId, spuId);
     }
@@ -469,6 +485,7 @@ public class ManageServiceImpl implements ManageService {
      * @return
      */
     @Override
+    @GmallCache(prefix = "SkuValueIdsMap:")
     public Map getSkuValueIdsMap(Long spuId) {
         Map<Object, Object> map = new HashMap<>();
         List<Map> mapList = skuSaleAttrValueMapper.selectSaleAttrValuesBySpu(spuId);
@@ -490,6 +507,7 @@ public class ManageServiceImpl implements ManageService {
      * @return
      */
     @Override
+    @GmallCache(prefix = "findSpuPosterBySpuId:")
     public List<SpuPoster> findSpuPosterBySpuId(Long spuId) {
         QueryWrapper<SpuPoster> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("spu_id", spuId);
@@ -505,6 +523,7 @@ public class ManageServiceImpl implements ManageService {
      * @return
      */
     @Override
+    @GmallCache(prefix = "attrList:")
     public List<BaseAttrInfo> getAttrList(Long skuId) {
         return baseAttrInfoMapper.selectBaseAttrInfoListBySkuId(skuId);
     }

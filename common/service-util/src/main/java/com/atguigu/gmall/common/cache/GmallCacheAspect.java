@@ -51,6 +51,7 @@ public class GmallCacheAspect {
         GmallCache gmallCache = methodSignature.getMethod().getAnnotation(GmallCache.class);
         //   获取到注解上的前缀
         String prefix = gmallCache.prefix();
+        String suffix = gmallCache.suffix();
         //  组成缓存的key！ 获取方法传递的参数
         String key = prefix+ Arrays.asList(point.getArgs()).toString();
         try {
